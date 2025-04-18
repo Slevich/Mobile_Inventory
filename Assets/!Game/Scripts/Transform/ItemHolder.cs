@@ -13,40 +13,28 @@ public class ItemHolder : MonoBehaviour
     [Header("Speed modifier for item snap."), SerializeField, Range(0, 100)] private float _speedModifier = 1f;
 
     private DraggableItem _holdingItem = null;
-    private PositionLerper _lerper;
-    private Action _onItemSnapping;
-    private ActionInterval _snappingInterval;
-    private CameraCaster _caster;
-    private float _snapPositionUpdateTime = 0.01f;
+    private ObjectMover _holdingItemMover = null;
     private UnityAction<DraggableItem> _stackAction;
     private DraggableItem _stackItem = null;
+    private Vector3 _snapPosition = Vector3.zero;
+    private IDropZone _currentDropZone;
     #endregion
 
     #region Methods
-    private void Awake ()
-    {
-        _lerper = new PositionLerper();
-        _snappingInterval = new ActionInterval();
-
-        _caster = SystemReferencesContainer.Instance.CameraRaycaster;
-
-        _onItemSnapping = delegate
-        {
-            if (this == null)
-                return;
-
-            _lerper.LerpToWorldPosition(_holdingItem.transform, transform.position, _speedModifier);
-        };
-    }
-
     public void Drag (DraggableItem Item)
     {
         if (_holdingItem != null)
             return;
 
         _holdingItem = Item;
+        _holdingItemMover = _holdingItem.GetComponent<ObjectMover>();
         _holdingItem.OnDrag?.Invoke();
-        _snappingInterval.StartInterval(_snapPositionUpdateTime, _onItemSnapping);
+
+        if (_holdingItemMover)
+        {
+            _holdingItemMover.StopLerping();
+            _holdingItemMover.StartLerpingToTransform(transform, _speedModifier);
+        }
 
         _stackAction = (item) =>
         {
@@ -56,26 +44,44 @@ public class ItemHolder : MonoBehaviour
         };
     }
 
-    private void Drop ()
+    public void SetDropZone(IDropZone DropZone) => _currentDropZone = DropZone; 
+
+    private void Drop()
     {
         if(_holdingItem == null)
             return;
 
-        if (_snappingInterval.Busy)
-            _snappingInterval.Stop();
+        if(_stackItem == null && _currentDropZone != null)
+        {
+            if (_holdingItemMover)
+            {
+                _holdingItemMover.StopLerping();
+                _holdingItem.transform.parent = _currentDropZone.ReturnDropParent();
+                _holdingItemMover.StartLerpingToPosition(_currentDropZone.ReturnDropPoint(), _speedModifier);
+            }
 
-        _holdingItem.OnDrop?.Invoke();
-        _holdingItem = null;
+            _holdingItem.OnDrop?.Invoke();
+            _holdingItem = null;
+        }
+        else if(_stackItem != null)
+        {
+            _holdingItem.OnDrop.AddListener(ActOnStack);
+            _holdingItem.OnDrop?.Invoke();
+            _holdingItem = null;
+        }
     }
 
     public void DetectedStackItems(DraggableItem[] StackItems)
     {
-        List<DraggableItem> stackItems = StackItems.ToList();
+        if (_holdingItem == null)
+            return;
 
-        if(stackItems.Contains(_holdingItem))
-            stackItems.Remove(_holdingItem);
+        List<DraggableItem> items = StackItems.ToList();
 
-        if (stackItems.Count == 0)
+        if(items.Contains(_holdingItem))
+            items.Remove(_holdingItem);
+
+        if (items.Count == 0)
         {
             if(_stackItem != null)
             {
@@ -86,19 +92,23 @@ public class ItemHolder : MonoBehaviour
             return;
         }
 
-        DraggableItem stackItem = stackItems.Where(item => item.ID == _holdingItem.ID).FirstOrDefault();
+        IEnumerable<DraggableItem> stackItems = items.Where(item => item.ID == _holdingItem.ID);
 
-        if(stackItem != null && stackItem != _stackItem)
+        if(stackItems != null && stackItems.Count() > 0)
         {
-            _stackItem = stackItem;
-            _holdingItem.OnDrop.AddListener(ActOnStack);
+            DraggableItem item = stackItems.FirstOrDefault();
+
+            if(item != _stackItem)
+            {
+                _stackItem = item;
+            }
         }
     }
 
     private void ActOnStack()
     {
         _holdingItem.OnStackSender?.Invoke();
-        _stackItem.Stack();
+        _stackItem.Stack(_holdingItem.Amount);
         _holdingItem.OnDrop.RemoveAllListeners();
     }
 

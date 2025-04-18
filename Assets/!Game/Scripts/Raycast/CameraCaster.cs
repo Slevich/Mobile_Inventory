@@ -6,6 +6,7 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEditor.Progress;
+using static UnityEngine.UI.Image;
 
 public class CameraCaster : MonoBehaviour
 {
@@ -14,11 +15,14 @@ public class CameraCaster : MonoBehaviour
     [Header("Ray length."), SerializeField, Range(0.1f, 10f)] private float _rayLength = 5f;
     [Header("Raycasted masks."), SerializeField] private LayerMask _masks = 0;
 
+    private ActionInterval _raycastingInverval;
     private CameraPointerPosition _pointerPosition;
     private GameObject _pointerInstance;
     private PositionFollower _positionFollower;
     private ItemHolder _itemHolder;
     private bool _firstCast = false;
+    private static readonly float _raycastingUpdateTime = 0.05f;
+    private Vector3 _origin;
     #endregion
 
     #region Properties
@@ -30,37 +34,45 @@ public class CameraCaster : MonoBehaviour
     private void Awake ()
     {
         _pointerPosition = SystemReferencesContainer.Instance.PointerPosition;
+        _raycastingInverval = new ActionInterval();
 
         if(_pointerPosition)
-            _pointerPosition.OnWorldPointerPosition += (hasPointer, pos) => Raycasting(hasPointer, pos);
+            _pointerPosition.OnWorldPointerPosition += (hasPointer, pos) => TryToRaycast(hasPointer, pos);
     }
 
-    private void Raycasting(bool needToRaycast, Vector3 origin)
+    private void TryToRaycast(bool needToRaycast, Vector3 origin)
     {
-        if (needToRaycast)
-        {
-            Transform cameraTransform = Camera.main.transform;
-            Vector3 cameraLocalDirection = cameraTransform.forward;
-            Vector3 cameraWorldDirection = cameraTransform.parent.TransformDirection(cameraLocalDirection);
+        _origin = origin;
 
-            RaycastHit2D[] hits = Physics2D.RaycastAll(origin, cameraWorldDirection, _rayLength, _masks);
-            
-            if(hits != null && hits.Length > 0)
+        if(needToRaycast && !_raycastingInverval.Busy)
+        {
+            Action raycastAction = delegate
             {
-                ReactToHitObjects(hits);
-            }
+                Transform cameraTransform = Camera.main.transform;
+                Vector3 cameraLocalDirection = cameraTransform.forward;
+                Vector3 cameraWorldDirection = cameraTransform.parent.TransformDirection(cameraLocalDirection);
 
-            Debug.DrawLine(origin, origin + cameraWorldDirection, Color.green);
+                RaycastHit2D[] hits = Physics2D.RaycastAll(_origin, cameraWorldDirection, _rayLength, _masks);
+
+                if (hits != null && hits.Length > 0)
+                {
+                    ReactToHitObjects(hits);
+                }
+
+                Debug.DrawLine(origin, origin + cameraWorldDirection, Color.green);
+            };
+
+            _raycastingInverval.StartInterval(_raycastingUpdateTime, raycastAction);
         }
-        else
+        else if(!needToRaycast && _raycastingInverval.Busy)
         {
+            _raycastingInverval.Stop();
+
             if (_pointerInstance != null)
             {
                 Destroy(_pointerInstance);
                 _pointerInstance = null;
             }
-
-            return;
         }
     }
 
@@ -91,6 +103,18 @@ public class CameraCaster : MonoBehaviour
         else
             return;
 
+        IEnumerable<GameObject> dropZonesObjects = raycastedObjects.Where(raycasted => raycasted.GetComponent<IDropZone>() != null);
+        if(dropZonesObjects != null && dropZonesObjects.Count() > 0)
+        {
+            GameObject dropZoneObject = raycastedObjects.Where(raycasted => raycasted.GetComponent<IDropZone>() != null).First();
+            IDropZone dropZone = dropZoneObject.GetComponent<IDropZone>();
+
+            if (dropZone != null)
+                Debug.Log("ƒроп«она!");
+
+            _itemHolder.SetDropZone(dropZone);
+        }
+
         IEnumerable<GameObject> draggableItems = raycastedObjects.Where(raycasted => raycasted.GetComponent<DraggableItem>() != null);
         if(draggableItems != null && draggableItems.Count() > 0 && _itemHolder != null)
         {
@@ -103,7 +127,6 @@ public class CameraCaster : MonoBehaviour
                 _itemHolder.DetectedStackItems(draggableItems.Select(item => item.GetComponent<DraggableItem>()).ToArray());
             }
         }
-
     }
     #endregion
 }

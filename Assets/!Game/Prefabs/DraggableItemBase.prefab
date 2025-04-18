@@ -194,6 +194,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5222172127426749869}
+  - component: {fileID: 4955804036402933225}
+  - component: {fileID: 816325856349005707}
   m_Layer: 0
   m_Name: ItemsAmount
   m_TagString: Untagged
@@ -210,14 +212,65 @@ Transform:
   m_GameObject: {fileID: 3374644353230759164}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.303, y: -0.34, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0.284, y: -0.283, z: 0}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4919356622422869464}
   - {fileID: 2646189940354320694}
   m_Father: {fileID: 6729653213980129035}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4955804036402933225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3374644353230759164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea33e57c97a988944aaf1d05d8595585, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scalingTransform: {fileID: 5222172127426749869}
+  _duration: 0.3
+  _scaleModifier: 1.4
+--- !u!114 &816325856349005707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3374644353230759164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87bf558673564614993efbdbf3ecc8df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _onAwake:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4955804036402933225}
+        m_TargetAssemblyTypeName: ScaleAnimation, Assembly-CSharp
+        m_MethodName: PlayAnimationFromZero
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  _onStart:
+    m_PersistentCalls:
+      m_Calls: []
+  _onEnable:
+    m_PersistentCalls:
+      m_Calls: []
+  _onDisable:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &6298570150744665789
 GameObject:
   m_ObjectHideFlags: 0
@@ -314,6 +367,7 @@ GameObject:
   - component: {fileID: 8515076723742961995}
   - component: {fileID: 6226476484517694827}
   - component: {fileID: 4434300090866503075}
+  - component: {fileID: 4805033860848427729}
   m_Layer: 3
   m_Name: DraggableItemBase
   m_TagString: Untagged
@@ -424,7 +478,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <ID>k__BackingField: -1
   _frontAxis: 2
-  _amount: 1
+  <Amount>k__BackingField: 1
   <OnDrag>k__BackingField:
     m_PersistentCalls:
       m_Calls:
@@ -533,6 +587,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &4805033860848427729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8943438072143742818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df72b3102213c324caf65e8767a22b3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9127973775647688538
 GameObject:
   m_ObjectHideFlags: 0

@@ -43,7 +43,6 @@ public class ScalableSprite : MonoBehaviour
         Vector3 rendererGlobalScale = _renderer.transform.lossyScale;
         Vector3 rendererModifiedScale = new Vector3(rendererGlobalScale.x * xScaleModifier, rendererGlobalScale.y * yScaleModifier, rendererGlobalScale.z);
         _renderer.transform.localScale = _renderer.transform.parent.InverseTransformPoint(rendererModifiedScale);
-        Debug.Log($"Local scale of the {_renderer.gameObject.name} is {_renderer.transform.localScale}");
     }
     #endregion
 }
