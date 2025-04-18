@@ -1,0 +1,141 @@
+{
+    "name": "InputActions",
+    "maps": [
+        {
+            "name": "Touchs",
+            "id": "19b16a7a-8517-4a31-aa93-93059f6c6a56",
+            "actions": [
+                {
+                    "name": "Primary",
+                    "type": "Value",
+                    "id": "5f8e0bd4-3a69-4c28-8546-13303e9a6338",
+                    "expectedControlType": "Touch",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Zero",
+                    "type": "Value",
+                    "id": "cbd30725-0928-42a0-8a9e-931e515debda",
+                    "expectedControlType": "Touch",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "4e3327b0-53bd-4b49-a686-46021d239fd7",
+                    "path": "<Touchscreen>/primaryTouch",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Primary",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "44527d55-0c21-4ebd-9e52-02010a2c3c62",
+                    "path": "<Touchscreen>/touch0",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zero",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Positions",
+            "id": "af8d75da-d895-4bbb-9e80-e24a5c4e411e",
+            "actions": [
+                {
+                    "name": "PointerTouch",
+                    "type": "Value",
+                    "id": "de5e6b73-46ac-428c-80b6-ee5d55980ef1",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PointerMouse",
+                    "type": "Value",
+                    "id": "36dc18c3-1c6d-4fb1-bff1-7d272534ea0c",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "b404ed75-d7e8-4fcd-9e16-b874a1ae9399",
+                    "path": "<Touchscreen>/primaryTouch/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PointerTouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "def7453e-5135-45a0-869e-7fd2208c0e27",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PointerMouse",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Buttons",
+            "id": "7995cdc6-30b7-404b-b0a5-67b1d4ab27bc",
+            "actions": [
+                {
+                    "name": "Drag",
+                    "type": "Button",
+                    "id": "dda8db23-734b-4548-bdb6-03b6e07c3eca",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "30c9926e-2e32-4f4c-b64e-e9210b4cccd4",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "69360177-e502-4469-987e-f5e47d09d894",
+                    "path": "<Touchscreen>/Press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
