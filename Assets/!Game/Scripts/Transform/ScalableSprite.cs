@@ -37,6 +37,15 @@ public class ScalableSprite : MonoBehaviour
         }
 
         Bounds globalBounds = GlobalValues.Instance.GraphicImagesBounds;
+
+        if (_scaledCollider.TryGetComponent<DraggableItem>(out DraggableItem item))
+        {
+            int size = item.Size;
+            Vector3 globalBoundsSize = globalBounds.size;
+            globalBoundsSize.y *= size;
+            globalBounds.size = globalBoundsSize;
+        }
+
         _scaledCollider.size = _scaledCollider.transform.parent.InverseTransformPoint(globalBounds.size);
         float xScaleModifier = MathF.Round(_scaledCollider.size.x / _startBoxSize.x, 2);
         float yScaleModifier = MathF.Round(_scaledCollider.size.y / _startBoxSize.y, 2);

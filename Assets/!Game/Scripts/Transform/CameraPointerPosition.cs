@@ -20,7 +20,7 @@ public class CameraPointerPosition : MonoBehaviour
     #region Methods
     private void Awake ()
     {
-        _touchDetector = SystemReferencesContainer.Instance.TouchDetector;
+        _touchDetector = PlayerReferencesContainer.Instance.TouchDetector;
     }
 
     private void OnEnable ()

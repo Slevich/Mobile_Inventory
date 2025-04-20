@@ -6,4 +6,5 @@ public interface IDropZone
 {
     public Vector3 ReturnDropPoint ();
     public Transform ReturnDropParent ();
+    public bool ResponseOnDrop ();
 }

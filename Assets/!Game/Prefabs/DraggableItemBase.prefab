@@ -366,6 +366,7 @@ GameObject:
   - component: {fileID: 6729653213980129035}
   - component: {fileID: 8515076723742961995}
   - component: {fileID: 6226476484517694827}
+  - component: {fileID: 3523751324984308375}
   - component: {fileID: 4434300090866503075}
   - component: {fileID: 4805033860848427729}
   m_Layer: 3
@@ -464,6 +465,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &3523751324984308375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8943438072143742818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3999e409b1297d3468ec266dcd79ec9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _rotatableTransform: {fileID: 6729653213980129035}
+  _rotationDuration: 0.4
+  _axes: 2
 --- !u!114 &4434300090866503075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -479,6 +495,8 @@ MonoBehaviour:
   <ID>k__BackingField: -1
   _frontAxis: 2
   <Amount>k__BackingField: 1
+  _size: 1
+  _shape: 0
   <OnDrag>k__BackingField:
     m_PersistentCalls:
       m_Calls:
@@ -498,6 +516,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: UnityEngine.Renderer, UnityEngine
         m_MethodName: set_sortingOrder
         m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 10
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 3523751324984308375}
+        m_TargetAssemblyTypeName: RotationAnimation, Assembly-CSharp
+        m_MethodName: RotateTo
+        m_Mode: 4
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

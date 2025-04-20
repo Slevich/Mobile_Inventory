@@ -10,14 +10,16 @@ using static UnityEditor.Progress;
 public class ItemHolder : MonoBehaviour
 {
     #region Fields
-    [Header("Speed modifier for item snap."), SerializeField, Range(0, 100)] private float _speedModifier = 1f;
+    [Header("Speed modifier for item snap to holder."), SerializeField, Range(0, 100)] private float _snapSpeedModifier = 1f;
+    [Header("Speed modifier for item drop into drop zone."), SerializeField, Range(0, 100)] private float _dropToZoneSpeedModifier = 1f;
 
+    public UnityEvent OnDragItem { get; set; }
     private DraggableItem _holdingItem = null;
     private ObjectMover _holdingItemMover = null;
     private UnityAction<DraggableItem> _stackAction;
     private DraggableItem _stackItem = null;
-    private Vector3 _snapPosition = Vector3.zero;
     private IDropZone _currentDropZone;
+    private IDropZone[] _dropZones;
     #endregion
 
     #region Methods
@@ -33,7 +35,7 @@ public class ItemHolder : MonoBehaviour
         if (_holdingItemMover)
         {
             _holdingItemMover.StopLerping();
-            _holdingItemMover.StartLerpingToTransform(transform, _speedModifier);
+            _holdingItemMover.StartLerpingToTransform(transform, _snapSpeedModifier);
         }
 
         _stackAction = (item) =>
@@ -42,9 +44,24 @@ public class ItemHolder : MonoBehaviour
             item.Stack();
             _holdingItem.OnDrop.RemoveAllListeners();
         };
+
+        PlayerReferencesContainer.Instance.CurrentHoldingItem = _holdingItem;
+        OnDragItem?.Invoke();
     }
 
-    public void SetDropZone(IDropZone DropZone) => _currentDropZone = DropZone; 
+    public void SetDropZones (IDropZone[] DropZones)
+    {
+        _dropZones = DropZones;
+
+        bool hasInventoryManager = DropZones.Any(zone => zone is InventoryManager);
+        if(hasInventoryManager)
+        {
+            _currentDropZone = DropZones.Where(zone => zone is InventoryManager).FirstOrDefault();
+            return;
+        }
+
+        _currentDropZone = DropZones.Where(zone => zone is RandomPointZone).FirstOrDefault();
+    }
 
     private void Drop()
     {
@@ -55,9 +72,26 @@ public class ItemHolder : MonoBehaviour
         {
             if (_holdingItemMover)
             {
-                _holdingItemMover.StopLerping();
-                _holdingItem.transform.parent = _currentDropZone.ReturnDropParent();
-                _holdingItemMover.StartLerpingToPosition(_currentDropZone.ReturnDropPoint(), _speedModifier);
+                bool canDropIntoDropZone = _currentDropZone.ResponseOnDrop();
+
+                if(!canDropIntoDropZone && _dropZones != null && _dropZones.Length > 0)
+                {
+                    IEnumerable<IDropZone> availableZones = _dropZones.Where(zone => zone.ResponseOnDrop() && zone != _currentDropZone);
+
+                    if(availableZones != null && availableZones.Count() > 0)
+                    {
+                        _currentDropZone = availableZones.FirstOrDefault();
+                    }
+                    else
+                        _currentDropZone = null;
+                }
+
+                if(_currentDropZone != null)
+                {
+                    _holdingItemMover.StopLerping();
+                    _holdingItem.transform.parent = _currentDropZone.ReturnDropParent();
+                    _holdingItemMover.StartLerpingToPosition(_currentDropZone.ReturnDropPoint(), _dropToZoneSpeedModifier);
+                }
             }
 
             _holdingItem.OnDrop?.Invoke();
@@ -69,6 +103,8 @@ public class ItemHolder : MonoBehaviour
             _holdingItem.OnDrop?.Invoke();
             _holdingItem = null;
         }
+
+        PlayerReferencesContainer.Instance.CurrentHoldingItem = _holdingItem;
     }
 
     public void DetectedStackItems(DraggableItem[] StackItems)

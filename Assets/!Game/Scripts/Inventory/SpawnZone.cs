@@ -22,7 +22,14 @@ public class SpawnZone : MonoBehaviour
 
     public void SpawnRandomObject()
     {
-        if(!_colliderZone)
+        int randomIndex = Random.Range(0, _prefabsToSpawn.Length - 1);
+        GameObject randomPrefab = _prefabsToSpawn[randomIndex];
+        SpawnObject(randomPrefab);
+    }
+
+    public void SpawnObject(GameObject Prefab)
+    {
+        if (!_colliderZone)
         {
             Debug.LogError("Collider zone has no collider!");
             return;
@@ -33,10 +40,7 @@ public class SpawnZone : MonoBehaviour
         float offsetY = Random.Range(-bounds.extents.y, bounds.extents.y);
         float offsetZ = Random.Range(-bounds.extents.z, bounds.extents.z);
         Vector3 randomPosition = bounds.center + new Vector3(offsetX, offsetY, offsetZ);
-
-        int randomIndex = Random.Range(0, _prefabsToSpawn.Length - 1);
-        GameObject randomPrefab = _prefabsToSpawn[randomIndex];
-        GameObject spawnedObject = Instantiate(randomPrefab, _objectsParent);
+        GameObject spawnedObject = Instantiate(Prefab, _objectsParent);
         spawnedObject.transform.position = randomPosition;
     }
     #endregion

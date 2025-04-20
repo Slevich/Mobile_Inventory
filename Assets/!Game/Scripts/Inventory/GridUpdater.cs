@@ -17,6 +17,7 @@ public class GridUpdater : MonoBehaviour
     [Header("Preview grid slot prefab."), SerializeField] private GameObject _previewSlotPrefab;
     [Header("Number of grid lines."), SerializeField, Range(2, 20)] private int _gridLines = 4;
     [Header("Number of grid columns."), SerializeField, Range(2, 20)] private int _gridColumns = 4;
+    [Header("Preview slots scale modifier."), SerializeField, Range(0, 5)] private float _scaleModifier = 1.0f;
 
     [SerializeField, HideInInspector] private int _evenGridLines = 0;
     [SerializeField, HideInInspector] private int _evenGridColumns = 0;
@@ -24,37 +25,16 @@ public class GridUpdater : MonoBehaviour
     private SlotSpawner _spawner;
     [SerializeField, HideInInspector] private GameObject[] _previewSlots;
     [SerializeField, HideInInspector] private List<Vector3> _cellsPositions;
+    [SerializeField, HideInInspector] private Dictionary<Vector3, Vector3> _positionsAndScales = new Dictionary<Vector3, Vector3>();
     #endregion
 
     #region Properties
-    public Vector2 GridCellSize => new Vector2(_grid.cellSize.x, _grid.cellSize.y);
-    public Vector3[] CellsWorldPositions => _cellsPositions.ToArray();
+    [field: SerializeField, HideInInspector] public List<GridSlot> GridSlots { get; private set; }
     public Vector3 CellSize => _grid.cellSize;
     [field: SerializeField, HideInInspector] public bool PreviewMode { get; set; } = false;
     #endregion
 
     #region Methods
-    private void OnValidate ()
-    {
-        if(_gridLines % 2 != 0)
-        {
-            if (_gridLines > _evenGridLines)
-            {
-                _gridLines++;
-                _evenGridLines = _gridLines;
-            }
-        }
-
-        if (_gridColumns % 2 != 0)
-        {
-            if (_gridColumns > _evenGridColumns)
-            {
-                _gridColumns++;
-                _evenGridColumns = _gridColumns;
-            }
-        }
-    }
-
     private void Awake ()
     {
         if(_box == null && TryGetComponent<BoxCollider2D>(out BoxCollider2D box))
@@ -73,19 +53,16 @@ public class GridUpdater : MonoBehaviour
             return;
 
         Vector2 boxOffset = _box.offset;
-        Vector2 boxSize = _box.size;
+        Vector2 boxSize = _box.bounds.size;
 
         float xCellSize = boxSize.x / _gridLines;
         float yCellSize = boxSize.y / _gridColumns;
 
-        float gridXCoordinate = 0;
-        float gridYCoordinate = 0;
+        float gridCenterXCoordinate = _box.bounds.center.x - _box.bounds.extents.x;
+        float gridCenterYCoordinate = _box.bounds.center.y - _box.bounds.extents.y;
+        float gridCenterZCoordinate = _box.bounds.center.z;
 
-        transform.localPosition = Vector3.zero;
-        gridXCoordinate = (0 - (boxSize.x / 2)) + _box.gameObject.transform.localPosition.x + boxOffset.x;
-        gridYCoordinate = (0 - (boxSize.y / 2)) + _box.gameObject.transform.localPosition.y + boxOffset.y;
-
-        transform.localPosition = new Vector3(gridXCoordinate, gridYCoordinate, 0);
+        _grid.transform.position = new Vector3(gridCenterXCoordinate, gridCenterYCoordinate, gridCenterZCoordinate);
         _grid.cellSize = new Vector2(xCellSize, yCellSize);
     }
 
@@ -95,12 +72,12 @@ public class GridUpdater : MonoBehaviour
 
         for (int i = 0; i < _gridLines; i++)
         {
-            int xCoordinate = _gridLines - i - 1;
+            int yCoordinate = (_gridLines - i) - 1;
 
             //colimns
             for (int q = 0; q < _gridColumns; q++)
             {
-                int yCoordinate = q;
+                int xCoordinate = q;
                 Vector3Int cellPosition = new Vector3Int(xCoordinate, yCoordinate, 0);
                 Vector3 cellWorldPosition = _grid.GetCellCenterWorld(cellPosition);
                 cellsWorldPositions.Add(cellWorldPosition);
@@ -120,9 +97,31 @@ public class GridUpdater : MonoBehaviour
         _cellsPositions = ReturnCellsWorldPositions().ToList();
 
         if (_spawner == null)
-            _spawner = new SlotSpawner(_previewSlotPrefab, 1f);
+            _spawner = new SlotSpawner(_previewSlotPrefab);
 
         _previewSlots = _spawner.SpawnIntoPoints(_box, _cellsPositions.ToArray(), transform);
+
+        Vector3 globalCellSize = _grid.transform.parent.TransformVector(_grid.cellSize);
+
+        if (GridSlots != null)
+            GridSlots.Clear();
+        else
+            GridSlots = new List<GridSlot>();
+
+        foreach (GameObject slot in _previewSlots)
+        {
+            BoxCollider2D box = slot.GetComponent<BoxCollider2D>();
+            Vector3 slotSize = box.bounds.size;
+            float distance = Vector3.Distance(globalCellSize, slotSize);
+            slot.transform.localScale *= (distance * _scaleModifier);
+            Vector3 position = _cellsPositions.Where(pos => pos == slot.transform.position).Single();
+            int positionIndex = _cellsPositions.IndexOf(position);
+            int gridPositionY = 1 + (positionIndex / _gridLines);
+            int gridPositionX = 1 + (positionIndex % _gridColumns);
+            Vector2 gridPosition = new Vector2(gridPositionX, gridPositionY);
+            GridSlot gridSlot = new GridSlot(position, slot.transform.localScale, gridPosition);
+            GridSlots.Add(gridSlot);
+        }
 
         PreviewMode = true;
     }
@@ -137,6 +136,7 @@ public class GridUpdater : MonoBehaviour
             if(!slot.activeSelf)
             {
                 Vector3 position = _cellsPositions.Where(pos => pos == slot.transform.position).FirstOrDefault();
+                _positionsAndScales.Remove(position);
                 _cellsPositions.Remove(position);
             }
 
@@ -146,6 +146,21 @@ public class GridUpdater : MonoBehaviour
         PreviewMode = false;
     }
     #endregion
+}
+
+[Serializable, ExecuteInEditMode]
+public class GridSlot
+{
+    [field: SerializeField, HideInInspector] public Vector3 GlobalPosition { get; private set; }
+    [field: SerializeField, HideInInspector] public Vector3 GlobalScale { get; private set; }
+    [field: SerializeField, HideInInspector] public Vector2 GridPosition { get; private set; }
+
+    public GridSlot(Vector3 Position, Vector3 Size, Vector2 PositionInGrid)
+    {
+        GlobalPosition = Position;
+        GlobalScale = Size;
+        GridPosition = PositionInGrid;
+    }
 }
 
 [CustomEditor(typeof(GridUpdater))]

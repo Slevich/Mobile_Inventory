@@ -73,6 +73,8 @@ public class RandomPointZone : MonoBehaviour, IDropZone
 
     public Transform ReturnDropParent () => _dropParent;
 
+    public bool ResponseOnDrop () => true;
+
     private void OnDrawGizmos ()
     {
         if (!_boxZone || Application.IsPlaying(this))

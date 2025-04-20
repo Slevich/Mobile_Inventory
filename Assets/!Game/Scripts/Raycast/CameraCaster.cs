@@ -33,7 +33,7 @@ public class CameraCaster : MonoBehaviour
     #region Methods
     private void Awake ()
     {
-        _pointerPosition = SystemReferencesContainer.Instance.PointerPosition;
+        _pointerPosition = PlayerReferencesContainer.Instance.PointerPosition;
         _raycastingInverval = new ActionInterval();
 
         if(_pointerPosition)
@@ -72,6 +72,7 @@ public class CameraCaster : MonoBehaviour
             {
                 Destroy(_pointerInstance);
                 _pointerInstance = null;
+                _itemHolder = null;
             }
         }
     }
@@ -103,6 +104,8 @@ public class CameraCaster : MonoBehaviour
         else
             return;
 
+        List<IDropZone> dropZones = new List<IDropZone>();
+
         IEnumerable<GameObject> dropZonesObjects = raycastedObjects.Where(raycasted => raycasted.GetComponent<IDropZone>() != null);
         if(dropZonesObjects != null && dropZonesObjects.Count() > 0)
         {
@@ -112,7 +115,7 @@ public class CameraCaster : MonoBehaviour
             if (dropZone != null)
                 Debug.Log("ƒроп«она!");
 
-            _itemHolder.SetDropZone(dropZone);
+            dropZones.Add(dropZone);
         }
 
         IEnumerable<GameObject> draggableItems = raycastedObjects.Where(raycasted => raycasted.GetComponent<DraggableItem>() != null);
@@ -127,6 +130,21 @@ public class CameraCaster : MonoBehaviour
                 _itemHolder.DetectedStackItems(draggableItems.Select(item => item.GetComponent<DraggableItem>()).ToArray());
             }
         }
+
+        IEnumerable<GameObject> inventories = raycastedObjects.Where(raycasted => raycasted.gameObject == PlayerReferencesContainer.Instance.InventoryManager.gameObject);
+        if(inventories != null && inventories.Count() > 0)
+        {
+            InventoryManager inventory = PlayerReferencesContainer.Instance.InventoryManager;
+            Vector2 hitPosition = hits.Where(hit => hit.collider == inventory.gameObject.GetComponent<BoxCollider2D>()).FirstOrDefault().point;
+            PlayerReferencesContainer.Instance.InventoryManager.SlotsSelection(hitPosition);
+            dropZones.Add(inventory);
+        }
+        else
+        {
+            PlayerReferencesContainer.Instance.InventoryManager.DeselectSlots();
+        }
+
+        _itemHolder.SetDropZones(dropZones.ToArray());
     }
     #endregion
 }

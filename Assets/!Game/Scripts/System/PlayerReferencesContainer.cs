@@ -1,17 +1,19 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class SystemReferencesContainer : MonoBehaviour
+public class PlayerReferencesContainer : MonoBehaviour
 {
-    private static SystemReferencesContainer _instance;
-    public static SystemReferencesContainer Instance
+    private static PlayerReferencesContainer _instance;
+    public static PlayerReferencesContainer Instance
     {
         get
         {
             if (_instance == null)
             {
-                _instance = FindObjectOfType<SystemReferencesContainer>();
+                _instance = FindObjectOfType<PlayerReferencesContainer>();
             }
 
             return _instance;
@@ -25,4 +27,20 @@ public class SystemReferencesContainer : MonoBehaviour
     [field: Header("Inventory management.")]
     [field: SerializeField] public InventoryManager InventoryManager { get; set; }
     [field: SerializeField] public GridUpdater GridUpdater { get; set; }
+
+
+    private DraggableItem _currentHoldingItem;
+    public DraggableItem CurrentHoldingItem
+    {
+        get
+        {
+            return _currentHoldingItem;
+        }
+        set
+        {
+            OnSetHoldingItem?.Invoke(value);
+            _currentHoldingItem = value;
+        }
+    }
+    public Action<DraggableItem> OnSetHoldingItem;
 }
