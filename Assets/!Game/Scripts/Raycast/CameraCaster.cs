@@ -5,8 +5,6 @@ using System.Linq;
 using UniRx;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEditor.Progress;
-using static UnityEngine.UI.Image;
 
 public class CameraCaster : MonoBehaviour
 {

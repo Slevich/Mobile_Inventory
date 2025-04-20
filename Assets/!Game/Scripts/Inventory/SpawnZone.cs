@@ -18,11 +18,12 @@ public class SpawnZone : MonoBehaviour
             _colliderZone = collider;
 
         _prefabsToSpawn = ItemsIdentificationManager.Instance.ItemsPrefabs;
+        Debug.Log("Префабов: " + _prefabsToSpawn.Length);
     }
 
     public void SpawnRandomObject()
     {
-        int randomIndex = Random.Range(0, _prefabsToSpawn.Length - 1);
+        int randomIndex = Random.Range(0, _prefabsToSpawn.Length);
         GameObject randomPrefab = _prefabsToSpawn[randomIndex];
         SpawnObject(randomPrefab);
     }

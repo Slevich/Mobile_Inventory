@@ -75,6 +75,7 @@ public class RandomPointZone : MonoBehaviour, IDropZone
 
     public bool ResponseOnDrop () => true;
 
+#if UNITY_EDITOR
     private void OnDrawGizmos ()
     {
         if (!_boxZone || Application.IsPlaying(this))
@@ -88,9 +89,11 @@ public class RandomPointZone : MonoBehaviour, IDropZone
         Gizmos.color = gizmosColor;
         Gizmos.DrawCube(_zoneCenter, _zoneSize);
     }
-    #endregion
+#endif
+#endregion
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(RandomPointZone))]
 public class RandomPointZoneEditor : Editor
 {
@@ -105,3 +108,4 @@ public class RandomPointZoneEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 }
+#endif

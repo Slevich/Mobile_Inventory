@@ -163,6 +163,7 @@ public class GridSlot
     }
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(GridUpdater))]
 public class GridUpdaterEditor : Editor
 {
@@ -211,3 +212,4 @@ public class GridUpdaterEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 }
+#endif

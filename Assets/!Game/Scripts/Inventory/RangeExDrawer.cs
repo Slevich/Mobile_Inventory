@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 [CustomPropertyDrawer(typeof(RangeExAttribute))]
 internal sealed class RangeExDrawer : PropertyDrawer
 {
@@ -23,3 +24,4 @@ internal sealed class RangeExDrawer : PropertyDrawer
         }
     }
 }
+#endif

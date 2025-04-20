@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -94,6 +93,7 @@ public class EventContainer : MonoBehaviour
         #endregion
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(EventContainer))]
 public class EventContainerEditor : Editor
 {
@@ -111,3 +111,4 @@ public class EventContainerEditor : Editor
             eventContainer.InvokeEventByInvokationType();
     }
 }
+#endif

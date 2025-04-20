@@ -23,7 +23,6 @@ public class ItemsIdentificationManager : MonoBehaviour
 
     private void SystematizeItems()
     {
-        
         for(int i = 0; i < ItemsPrefabs.Length; i++)
         {
             DraggableItem item = ItemsPrefabs[i].GetComponent<DraggableItem>();
